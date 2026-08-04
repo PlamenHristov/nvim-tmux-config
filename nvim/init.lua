@@ -268,12 +268,7 @@ require('lazy').setup({
           'stylua',
           'rust-analyzer',
           'lua-language-server',
-          'gopls',
-          'goimports',
-          'gofumpt',
-          'golangci-lint',
           'vtsls',
-          'nomicfoundation-solidity-language-server',
           'prettierd',
         },
       }
@@ -399,50 +394,6 @@ require('lazy').setup({
         },
       }
 
-      vim.lsp.config.gopls = {
-        cmd = { 'gopls' },
-        filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
-        root_markers = { 'go.work', 'go.mod', '.git' },
-        capabilities = capabilities,
-        settings = {
-          gopls = {
-            analyses = {
-              unusedparams = true,
-              shadow = true,
-              nilness = true,
-              unusedwrite = true,
-              useany = true,
-              fieldalignment = false,
-            },
-            staticcheck = true,
-            gofumpt = true,
-            usePlaceholders = true,
-            completeUnimported = true,
-            directoryFilters = { '-.git', '-node_modules', '-vendor' },
-            semanticTokens = true,
-            hints = {
-              assignVariableTypes = true,
-              compositeLiteralFields = true,
-              compositeLiteralTypes = true,
-              constantValues = true,
-              functionTypeParameters = true,
-              parameterNames = true,
-              rangeVariableTypes = true,
-            },
-            codelenses = {
-              gc_details = false,
-              generate = true,
-              regenerate_cgo = true,
-              run_govulncheck = true,
-              test = true,
-              tidy = true,
-              upgrade_dependency = true,
-              vendor = true,
-            },
-          },
-        },
-      }
-
       vim.lsp.config.lua_ls = {
         cmd = { 'lua-language-server' },
         filetypes = { 'lua' },
@@ -486,19 +437,10 @@ require('lazy').setup({
         },
       }
 
-      vim.lsp.config.solidity = {
-        cmd = { 'nomicfoundation-solidity-language-server', '--stdio' },
-        filetypes = { 'solidity' },
-        root_markers = { 'foundry.toml', 'hardhat.config.js', 'hardhat.config.ts', 'remappings.txt', '.git' },
-        capabilities = capabilities,
-      }
-
       -- Enable the LSP servers
       vim.lsp.enable('rust_analyzer')
       vim.lsp.enable('lua_ls')
-      vim.lsp.enable('gopls')
       vim.lsp.enable('vtsls')
-      vim.lsp.enable('solidity')
     end,
   },
 
@@ -529,7 +471,6 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         rust = { 'rustfmt' },
-        go = { 'goimports', 'gofumpt' },
         javascript = { 'prettierd' },
         javascriptreact = { 'prettierd' },
         typescript = { 'prettierd' },
@@ -779,25 +720,6 @@ require('lazy').setup({
         },
       }
       vim.cmd.colorscheme 'onedark'
-
-      -- Solidity-only capture tuning (language-scoped, does not touch Rust/TS)
-      local function solidity_highlights()
-        -- Elementary value types (uint256/address/bool/bytes) — teal, distinct from orange keywords
-        vim.api.nvim_set_hl(0, '@type.builtin.solidity', { fg = '#4EC9B0' })
-        -- Contract/interface/library/struct/enum names — light purple type color
-        vim.api.nvim_set_hl(0, '@type.solidity', { fg = '#B5B6E3' })
-        -- Modifiers/visibility (public/private/view/pure/payable) — orange bold, IntelliJ-style
-        vim.api.nvim_set_hl(0, '@keyword.modifier.solidity', { fg = '#CC7832', bold = true })
-        -- NatSpec doc comments — green italic
-        vim.api.nvim_set_hl(0, '@comment.documentation.solidity', { fg = '#629755', italic = true })
-        -- Global builtins (require/keccak256/ecrecover/selfdestruct) — gold
-        vim.api.nvim_set_hl(0, '@function.builtin.solidity', { fg = '#FFC66D' })
-      end
-      solidity_highlights()
-      vim.api.nvim_create_autocmd('ColorScheme', {
-        pattern = 'onedark',
-        callback = solidity_highlights,
-      })
     end,
   },
 
@@ -842,8 +764,6 @@ require('lazy').setup({
           'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline',
           'vim', 'vimdoc', 'rust', 'python', 'javascript', 'typescript',
           'toml', 'json', 'yaml', 'tsx',
-          'go', 'gomod', 'gosum', 'gowork',
-          'solidity',
         },
         auto_install = vim.fn.executable 'tree-sitter' == 1,
         highlight = {
@@ -943,14 +863,6 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>rt', function() cargo_test:toggle() end, { desc = '[R]ust [T]est' })
       vim.keymap.set('n', '<leader>rb', function() cargo_build:toggle() end, { desc = '[R]ust [B]uild' })
 
-      -- Go terminals
-      local go_run = Terminal:new { cmd = 'go run .', hidden = true, direction = 'float' }
-      local go_test = Terminal:new { cmd = 'go test ./...', hidden = true, direction = 'float' }
-      local go_build = Terminal:new { cmd = 'go build ./...', hidden = true, direction = 'float' }
-
-      vim.keymap.set('n', '<leader>Gr', function() go_run:toggle() end, { desc = '[G]o [R]un' })
-      vim.keymap.set('n', '<leader>Gt', function() go_test:toggle() end, { desc = '[G]o [T]est' })
-      vim.keymap.set('n', '<leader>Gb', function() go_build:toggle() end, { desc = '[G]o [B]uild' })
     end,
   },
 
