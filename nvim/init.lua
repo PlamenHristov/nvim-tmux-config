@@ -204,6 +204,8 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = '[G]it [C]ommits' })
       vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
       vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[G]it [B]ranches' })
+      vim.keymap.set('n', '<leader>gp', '<cmd>!git pull<CR><cmd>checktime<CR>', { desc = '[G]it [P]ull' })
+      vim.keymap.set('n', '<leader>!', ':TermExec cmd=""<Left>', { desc = 'Run command in terminal' })
 
       -- Buffer keymaps
       vim.keymap.set('n', '<leader>bb', builtin.buffers, { desc = '[B]uffer list' })
@@ -268,7 +270,12 @@ require('lazy').setup({
           'stylua',
           'rust-analyzer',
           'lua-language-server',
+          'gopls',
+          'goimports',
+          'gofumpt',
+          'golangci-lint',
           'vtsls',
+          'nomicfoundation-solidity-language-server',
           'prettierd',
         },
       }
@@ -339,7 +346,7 @@ require('lazy').setup({
               extraArgs = { '--all', '--', '-W', 'clippy::all' },
             },
             cargo = {
-              allFeatures = true,
+              allFeatures = false,
               loadOutDirsFromCheck = true,
             },
             procMacro = { enable = true },
@@ -394,6 +401,50 @@ require('lazy').setup({
         },
       }
 
+      vim.lsp.config.gopls = {
+        cmd = { 'gopls' },
+        filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+        root_markers = { 'go.work', 'go.mod', '.git' },
+        capabilities = capabilities,
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+              shadow = true,
+              nilness = true,
+              unusedwrite = true,
+              useany = true,
+              fieldalignment = false,
+            },
+            staticcheck = true,
+            gofumpt = true,
+            usePlaceholders = true,
+            completeUnimported = true,
+            directoryFilters = { '-.git', '-node_modules', '-vendor' },
+            semanticTokens = true,
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              compositeLiteralTypes = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+              rangeVariableTypes = true,
+            },
+            codelenses = {
+              gc_details = false,
+              generate = true,
+              regenerate_cgo = true,
+              run_govulncheck = true,
+              test = true,
+              tidy = true,
+              upgrade_dependency = true,
+              vendor = true,
+            },
+          },
+        },
+      }
+
       vim.lsp.config.lua_ls = {
         cmd = { 'lua-language-server' },
         filetypes = { 'lua' },
@@ -437,10 +488,19 @@ require('lazy').setup({
         },
       }
 
+      vim.lsp.config.solidity = {
+        cmd = { 'nomicfoundation-solidity-language-server', '--stdio' },
+        filetypes = { 'solidity' },
+        root_markers = { 'foundry.toml', 'hardhat.config.js', 'hardhat.config.ts', 'remappings.txt', '.git' },
+        capabilities = capabilities,
+      }
+
       -- Enable the LSP servers
       vim.lsp.enable('rust_analyzer')
       vim.lsp.enable('lua_ls')
+      vim.lsp.enable('gopls')
       vim.lsp.enable('vtsls')
+      vim.lsp.enable('solidity')
     end,
   },
 
@@ -471,6 +531,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         rust = { 'rustfmt' },
+        go = { 'goimports', 'gofumpt' },
         javascript = { 'prettierd' },
         javascriptreact = { 'prettierd' },
         typescript = { 'prettierd' },
@@ -570,158 +631,9 @@ require('lazy').setup({
     end,
   },
 
-  -- IntelliJ/RustRover-like colorscheme (onedark with warmer tones)
-  {
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    config = function()
-      require('onedark').setup {
-        style = 'warmer',
-        transparent = false,
-        term_colors = true,
-        code_style = {
-          comments = 'italic',
-          keywords = 'bold',
-          functions = 'none',
-          strings = 'none',
-          variables = 'none',
-        },
-        -- RustRover/IntelliJ Darcula-like highlighting
-        highlights = {
-          -- Keywords (orange like IntelliJ)
-          ['@keyword'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.function'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.return'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.operator'] = { fg = '#CC7832' },
-          ['@keyword.conditional'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.repeat'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.import'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.modifier'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.type'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.exception'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@keyword.directive'] = { fg = '#CC7832', fmt = 'bold' },
-
-          -- Types (light purple)
-          ['@type'] = { fg = '#B5B6E3' },
-          ['@type.builtin'] = { fg = '#CC7832' },
-          ['@type.qualifier'] = { fg = '#CC7832' },
-
-          -- Functions (yellow/gold)
-          ['@function'] = { fg = '#FFC66D' },
-          ['@function.call'] = { fg = '#FFC66D' },
-          ['@function.method'] = { fg = '#FFC66D' },
-          ['@function.method.call'] = { fg = '#FFC66D' },
-          ['@function.macro'] = { fg = '#BBB529' },
-          ['@function.builtin'] = { fg = '#FFC66D' },
-          ['@constructor'] = { fg = '#FFC66D' },
-
-          -- Strings (green)
-          ['@string'] = { fg = '#6A8759' },
-          ['@string.escape'] = { fg = '#CC7832' },
-          ['@string.special'] = { fg = '#CC7832' },
-          ['@string.special.path'] = { fg = '#6A8759', fmt = 'underline' },
-          ['@string.special.symbol'] = { fg = '#CC7832' },
-          ['@character.special'] = { fg = '#CC7832' },
-
-          -- Comments (gray italic)
-          ['@comment'] = { fg = '#808080', fmt = 'italic' },
-          ['@comment.documentation'] = { fg = '#629755', fmt = 'italic' },
-
-          -- Variables
-          ['@variable'] = { fg = '#A9B7C6' },
-          ['@variable.parameter'] = { fg = '#A9B7C6' },
-          ['@variable.member'] = { fg = '#9876AA' },
-
-          -- Constants (purple)
-          ['@constant'] = { fg = '#9876AA' },
-          ['@constant.builtin'] = { fg = '#CC7832' },
-
-          -- Numbers (blue)
-          ['@number'] = { fg = '#6897BB' },
-          ['@number.float'] = { fg = '#6897BB' },
-          ['@boolean'] = { fg = '#CC7832' },
-
-          -- Operators and punctuation
-          ['@operator'] = { fg = '#A9B7C6' },
-          ['@punctuation'] = { fg = '#A9B7C6' },
-          ['@punctuation.bracket'] = { fg = '#A9B7C6' },
-          ['@punctuation.delimiter'] = { fg = '#A9B7C6' },
-
-          -- Modules/namespaces (purple)
-          ['@module'] = { fg = '#B5B6E3' },
-          ['@namespace'] = { fg = '#B5B6E3' },
-
-          -- Attributes (yellow-green for #[derive], etc.)
-          ['@attribute'] = { fg = '#BBB529' },
-          ['@attribute.builtin'] = { fg = '#BBB529' },
-
-          -- Labels/lifetimes (yellow/gold)
-          ['@label'] = { fg = '#FFC66D' },
-
-          -- Properties/fields (purple)
-          ['@property'] = { fg = '#9876AA' },
-
-          -- LSP Semantic Tokens (these override treesitter when available)
-          ['@lsp.type.namespace'] = { fg = '#B5B6E3' },
-          ['@lsp.type.type'] = { fg = '#B5B6E3' },
-          ['@lsp.type.class'] = { fg = '#B5B6E3' },
-          ['@lsp.type.struct'] = { fg = '#B5B6E3' },
-          ['@lsp.type.enum'] = { fg = '#B5B6E3' },
-          ['@lsp.type.interface'] = { fg = '#B5B6E3' },
-          ['@lsp.type.typeParameter'] = { fg = '#B5B6E3' },
-          ['@lsp.type.parameter'] = { fg = '#A9B7C6' },
-          ['@lsp.type.variable'] = { fg = '#A9B7C6' },
-          ['@lsp.type.property'] = { fg = '#9876AA' },
-          ['@lsp.type.enumMember'] = { fg = '#9876AA' },
-          ['@lsp.type.function'] = { fg = '#FFC66D' },
-          ['@lsp.type.method'] = { fg = '#FFC66D' },
-          ['@lsp.type.macro'] = { fg = '#BBB529' },
-          ['@lsp.type.decorator'] = { fg = '#BBB529' },
-          ['@lsp.type.lifetime'] = { fg = '#FFC66D' },
-          ['@lsp.type.selfKeyword'] = { fg = '#CC7832', fmt = 'bold' },
-          ['@lsp.type.selfTypeKeyword'] = { fg = '#B5B6E3' },
-          ['@lsp.type.builtinType'] = { fg = '#CC7832' },
-          ['@lsp.type.formatSpecifier'] = { fg = '#CC7832' },
-          ['@lsp.type.escapeSequence'] = { fg = '#CC7832' },
-          ['@lsp.type.attributeBracket'] = { fg = '#BBB529' },
-          ['@lsp.type.derive'] = { fg = '#BBB529' },
-          ['@lsp.type.deriveHelper'] = { fg = '#BBB529' },
-          ['@lsp.type.generic'] = { fg = '#B5B6E3' },
-
-          -- Modifiers
-          ['@lsp.mod.mutable'] = { fmt = 'underline' },
-          ['@lsp.mod.consuming'] = { fmt = 'italic' },
-          ['@lsp.mod.unsafe'] = { fg = '#FF6B68' },
-          ['@lsp.mod.async'] = { fmt = 'italic' },
-          ['@lsp.typemod.function.trait'] = { fg = '#FFC66D' },
-          ['@lsp.typemod.method.trait'] = { fg = '#FFC66D' },
-
-          -- UI elements (Darcula-like)
-          CursorLine = { bg = '#323232' },
-          CursorLineNr = { fg = '#A9B7C6', fmt = 'bold' },
-          Visual = { bg = '#214283' },
-          Search = { fg = '#FFFFFF', bg = '#32593D' },
-          IncSearch = { fg = '#FFFFFF', bg = '#5E4D1A' },
-          LineNr = { fg = '#606366' },
-          SignColumn = { bg = '#2B2B2B' },
-          NormalFloat = { bg = '#3C3F41' },
-          FloatBorder = { fg = '#5E5E5E', bg = '#3C3F41' },
-          Pmenu = { bg = '#3C3F41' },
-          PmenuSel = { bg = '#4B6EAF' },
-
-          -- Diagnostics
-          DiagnosticError = { fg = '#FF6B68' },
-          DiagnosticWarn = { fg = '#BE9117' },
-          DiagnosticInfo = { fg = '#6897BB' },
-          DiagnosticHint = { fg = '#6A8759' },
-
-          -- Inlay hints (subtle gray like IntelliJ)
-          LspInlayHint = { fg = '#787878', bg = '#2D2D2D', fmt = 'italic' },
-        },
-      }
-      vim.cmd.colorscheme 'onedark'
-    end,
-  },
+  -- Colour scheme. Exactly one of these is active; the specs live in lua/themes/.
+  -- require 'themes.catppuccin',
+  require 'themes.intellij-darcula',
 
   -- Todo comments highlighting
   {
@@ -750,20 +662,28 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     config = function()
-      -- Remove plugin queries that conflict with Neovim 0.12 bundled queries
-      local plugin_queries = vim.fn.stdpath('data') .. '/lazy/nvim-treesitter/queries'
+      -- Neovim 0.12 bundles parsers and queries for these languages. Remove the
+      -- plugin's copies so the bundled pair is used together; an old plugin
+      -- parser against the bundled queries raises query errors.
+      local plugin_dir = vim.fn.stdpath('data') .. '/lazy/nvim-treesitter'
       for _, lang in ipairs({ 'c', 'lua', 'markdown', 'markdown_inline', 'vim', 'vimdoc', 'query' }) do
-        local lang_dir = plugin_queries .. '/' .. lang
+        local lang_dir = plugin_dir .. '/queries/' .. lang
         if vim.uv.fs_stat(lang_dir) then
           vim.fn.delete(lang_dir, 'rf')
+        end
+        local parser = plugin_dir .. '/parser/' .. lang .. '.so'
+        if vim.uv.fs_stat(parser) then
+          vim.fn.delete(parser)
         end
       end
 
       require('nvim-treesitter.configs').setup({
         ensure_installed = {
-          'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline',
-          'vim', 'vimdoc', 'rust', 'python', 'javascript', 'typescript',
+          'bash', 'html', 'luadoc',
+          'rust', 'python', 'javascript', 'typescript',
           'toml', 'json', 'yaml', 'tsx',
+          'go', 'gomod', 'gosum', 'gowork',
+          'solidity',
         },
         auto_install = vim.fn.executable 'tree-sitter' == 1,
         highlight = {
@@ -863,6 +783,14 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>rt', function() cargo_test:toggle() end, { desc = '[R]ust [T]est' })
       vim.keymap.set('n', '<leader>rb', function() cargo_build:toggle() end, { desc = '[R]ust [B]uild' })
 
+      -- Go terminals
+      local go_run = Terminal:new { cmd = 'go run .', hidden = true, direction = 'float' }
+      local go_test = Terminal:new { cmd = 'go test ./...', hidden = true, direction = 'float' }
+      local go_build = Terminal:new { cmd = 'go build ./...', hidden = true, direction = 'float' }
+
+      vim.keymap.set('n', '<leader>Gr', function() go_run:toggle() end, { desc = '[G]o [R]un' })
+      vim.keymap.set('n', '<leader>Gt', function() go_test:toggle() end, { desc = '[G]o [T]est' })
+      vim.keymap.set('n', '<leader>Gb', function() go_build:toggle() end, { desc = '[G]o [B]uild' })
     end,
   },
 
@@ -877,7 +805,7 @@ require('lazy').setup({
         },
         scope = {
           enabled = true,
-          show_start = true,
+          show_start = false,
           show_end = false,
         },
       }
