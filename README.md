@@ -34,8 +34,10 @@ first launch via lazy.nvim; `lazy-lock.json` pins the versions.
 - `nvim/lua/autocommands.lua` - autocommands
 - `nvim/lua/diagnostics.lua` - diagnostic config
 - `nvim/lua/custom/plugins/` - personal plugin additions (incl. distant.nvim for remote dev)
+- `nvim/lua/themes/` - colour scheme specs (catppuccin, intellij-darcula); init.lua requires one
 - `nvim/lua/kickstart/plugins/` - optional kickstart modules
 - `tmux/tmux.conf` - tmux settings, bindings, TPM plugin list
+- `tmux/scripts/` - tmux-resurrect hooks that save/resume the Claude Code session held by each pane
 
 ## Notes
 
