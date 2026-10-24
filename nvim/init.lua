@@ -88,7 +88,6 @@ require('lazy').setup({
           { '<leader>d', group = '[D]ocument' },
           { '<leader>f', group = '[F]ind (Telescope)' },
           { '<leader>r', group = '[R]ust/[R]ename' },
-          { '<leader>G', group = '[G]o' },
           { '<leader>s', group = '[S]earch' },
           { '<leader>w', group = '[W]orkspace' },
           { '<leader>t', group = '[T]oggle' },
@@ -270,10 +269,6 @@ require('lazy').setup({
           'stylua',
           'rust-analyzer',
           'lua-language-server',
-          'gopls',
-          'goimports',
-          'gofumpt',
-          'golangci-lint',
           'vtsls',
           'nomicfoundation-solidity-language-server',
           'prettierd',
@@ -401,50 +396,6 @@ require('lazy').setup({
         },
       }
 
-      vim.lsp.config.gopls = {
-        cmd = { 'gopls' },
-        filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
-        root_markers = { 'go.work', 'go.mod', '.git' },
-        capabilities = capabilities,
-        settings = {
-          gopls = {
-            analyses = {
-              unusedparams = true,
-              shadow = true,
-              nilness = true,
-              unusedwrite = true,
-              useany = true,
-              fieldalignment = false,
-            },
-            staticcheck = true,
-            gofumpt = true,
-            usePlaceholders = true,
-            completeUnimported = true,
-            directoryFilters = { '-.git', '-node_modules', '-vendor' },
-            semanticTokens = true,
-            hints = {
-              assignVariableTypes = true,
-              compositeLiteralFields = true,
-              compositeLiteralTypes = true,
-              constantValues = true,
-              functionTypeParameters = true,
-              parameterNames = true,
-              rangeVariableTypes = true,
-            },
-            codelenses = {
-              gc_details = false,
-              generate = true,
-              regenerate_cgo = true,
-              run_govulncheck = true,
-              test = true,
-              tidy = true,
-              upgrade_dependency = true,
-              vendor = true,
-            },
-          },
-        },
-      }
-
       vim.lsp.config.lua_ls = {
         cmd = { 'lua-language-server' },
         filetypes = { 'lua' },
@@ -498,7 +449,6 @@ require('lazy').setup({
       -- Enable the LSP servers
       vim.lsp.enable('rust_analyzer')
       vim.lsp.enable('lua_ls')
-      vim.lsp.enable('gopls')
       vim.lsp.enable('vtsls')
       vim.lsp.enable('solidity')
     end,
@@ -531,7 +481,6 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         rust = { 'rustfmt' },
-        go = { 'goimports', 'gofumpt' },
         javascript = { 'prettierd' },
         javascriptreact = { 'prettierd' },
         typescript = { 'prettierd' },
@@ -682,7 +631,6 @@ require('lazy').setup({
           'bash', 'html', 'luadoc',
           'rust', 'python', 'javascript', 'typescript',
           'toml', 'json', 'yaml', 'tsx',
-          'go', 'gomod', 'gosum', 'gowork',
           'solidity',
         },
         auto_install = vim.fn.executable 'tree-sitter' == 1,
@@ -782,15 +730,6 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>rr', function() cargo_run:toggle() end, { desc = '[R]ust [R]un' })
       vim.keymap.set('n', '<leader>rt', function() cargo_test:toggle() end, { desc = '[R]ust [T]est' })
       vim.keymap.set('n', '<leader>rb', function() cargo_build:toggle() end, { desc = '[R]ust [B]uild' })
-
-      -- Go terminals
-      local go_run = Terminal:new { cmd = 'go run .', hidden = true, direction = 'float' }
-      local go_test = Terminal:new { cmd = 'go test ./...', hidden = true, direction = 'float' }
-      local go_build = Terminal:new { cmd = 'go build ./...', hidden = true, direction = 'float' }
-
-      vim.keymap.set('n', '<leader>Gr', function() go_run:toggle() end, { desc = '[G]o [R]un' })
-      vim.keymap.set('n', '<leader>Gt', function() go_test:toggle() end, { desc = '[G]o [T]est' })
-      vim.keymap.set('n', '<leader>Gb', function() go_build:toggle() end, { desc = '[G]o [B]uild' })
     end,
   },
 

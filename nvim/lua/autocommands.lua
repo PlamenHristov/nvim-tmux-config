@@ -22,14 +22,3 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.keymap.set('n', '<leader>rf', ':!cargo fmt<CR>', vim.tbl_extend('force', opts, { desc = '[R]ust [F]mt' }))
   end,
 })
-
--- Go-specific keymaps
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'go',
-  callback = function()
-    local opts = { buffer = true, noremap = true, silent = true }
-    vim.keymap.set('n', '<leader>Gv', ':!go vet ./...<CR>', vim.tbl_extend('force', opts, { desc = '[G]o [V]et' }))
-    vim.keymap.set('n', '<leader>Gf', ':!go fmt ./...<CR>', vim.tbl_extend('force', opts, { desc = '[G]o [F]mt' }))
-    vim.keymap.set('n', '<leader>Gl', ':!golangci-lint run<CR>', vim.tbl_extend('force', opts, { desc = '[G]o [L]int' }))
-  end,
-})
